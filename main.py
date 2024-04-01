@@ -17,8 +17,8 @@ def great():
     return {"Hello": "World"}
 
 class Egreso(BaseModel):
-    id: int | None = Field(default=None, primary_key=True)
-    fecha:              Annotated[datetime | None, Body()] = Field(title="entry transaction date")
+    id:                 int | None = Field(default=None, primary_key=True)
+    fecha:              str | None = Field(default=None, title="Entry transaction date")
     descripcion:        str = Field(min_length=4, max_length=64, title="entry transaction description")
     valor:              float = Field(default="1000", le=5000000, lg=100, title="Price of entry transaction")
     categoria:          str = Field(min_length=4, max_length=128, title="category of entry transaction")
@@ -103,7 +103,8 @@ def get_egreso(id: int) -> Egreso:
 @app.post('/egresos', tags=['egresos'], response_model=dict, description="Creates a new egreso")
 def create_egreso(egreso: Egreso = Body()) -> dict:
     global contador
-    egresos.id = contador
+    egreso.id = contador
+    egreso.fecha = str(datetime.now())
     contador += 1
     egresos.append(egreso.model_dump())
     return JSONResponse(content={
