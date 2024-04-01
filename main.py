@@ -85,7 +85,7 @@ def remove_user(id: int) -> dict:
     }, status_code=404)
     
 #egresos
-@app.get('/egresos', tags=['egresos'], response_model=egresos[Egreso], description="Returns all egresos stored")
+@app.get('/egresos', tags=['egresos'], response_model=List[Egreso], description="Returns all egresos stored")
 def get_all_egresos() -> List[Egreso]:
     result = []
     for element in egresos:
