@@ -109,7 +109,7 @@ def create_egreso(egreso: Egreso = Body()) -> dict:
     egresos.append(egreso.model_dump())
     return JSONResponse(content={
         "message": "The user was created successfully",
-        "data": egresos.model_dump()
+        "data": egreso.model_dump()
     }, status_code=201)
 
 @app.delete('/egresos/{id}', tags=['egresos'], response_model=dict, description="Removes specific egreso")
