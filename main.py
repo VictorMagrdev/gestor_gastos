@@ -126,25 +126,28 @@ def remove_egreso(id: int) -> dict:
         "data": None
     }, status_code=404)
 
-@app.get('/reporte/simple')
-def reporte_simple():
+@app.get('/reporte/simple', response_model=dict, description="Reporte con información basica")
+def reporte_simple() -> dict:
     total_ingresos = 0
     total_egresos = 0
 
     if len(ingresos) > 0:
-        total_ingresos = sum(ingreso.valor for ingreso in ingresos)
-    elif len(egresos) > 0 :
-        total_egresos = sum(egreso.valor for egreso in egresos)
+        for ingreso in ingresos:
+            total_ingresos += ingreso["valor"]
+    if len(egresos) > 0 :
+        for egreso in egresos:
+            total_egresos += egreso["valor"]
     
     balance = total_ingresos - total_egresos
     
-    return {
+    return JSONResponse(content={
         "numero de ingresos": len(ingresos),
         "total_ingresos": total_ingresos,
         "numero de egresos": len(egresos),
         "total_egresos": total_egresos,
         "balance": balance
-    }
+        }, status_code=200
+    )
 
 @app.get('/reporte/ampliado')
 def reporte_ampliado():
