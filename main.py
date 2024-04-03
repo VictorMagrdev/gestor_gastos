@@ -12,7 +12,7 @@ ingresos = []
 
 ingresos_categorias = ["Pago de nomina", "Pago contrato", "Pago arriendo", "Mesada"]
 egreso_categorias= ["alimentacion", "transporte", "ocio", "libros"]
-@app.get("/")
+@app.get("/api/v1")
 def great():
     return {"Hello": "World"}
 
@@ -45,21 +45,21 @@ class Ingreso(BaseModel):
         return categoria
         
 #ENDPOINTS INGRESOS
-@app.get('/ingresos', tags=['ingresos'], response_model=List[Ingreso], description="Returns all ingresos stored")
+@app.get('/api/v1/ingresos', tags=['ingresos'], response_model=List[Ingreso], description="Returns all ingresos stored")
 def get_all_ingresos() -> List[Ingreso]:
     result = []
     for element in ingresos:
         result.append(element)
     return JSONResponse(content=result, status_code=200)
 
-@app.get('/ingresos/{id}', tags=['ingresos'], response_model=Ingreso, description="Returns data of one specific ingreso")
+@app.get('/api/v1/ingresos/{id}', tags=['ingresos'], response_model=Ingreso, description="Returns data of one specific ingreso")
 def get_ingreso(id: int) -> Ingreso:
     for element in ingresos:
         if element["id"] == id:
             return JSONResponse(content=element, status_code=200)
     return JSONResponse(content=None, status_code=404)
 
-@app.post('/ingresos', tags=['ingresos'], response_model=dict, description="Creates a new ingreso")
+@app.post('/api/v1/ingresos', tags=['ingresos'], response_model=dict, description="Creates a new ingreso")
 def create_ingreso(ingreso: Ingreso = Body()) -> dict:
     global contador
     ingreso.id = contador
@@ -71,7 +71,7 @@ def create_ingreso(ingreso: Ingreso = Body()) -> dict:
         "data": ingreso.model_dump()
     }, status_code=201)
 
-@app.delete('/ingresos/{id}', tags=['ingresos'], response_model=dict, description="Removes specific ingreso")
+@app.delete('/api/v1/ingresos/{id}', tags=['ingresos'], response_model=dict, description="Removes specific ingreso")
 def remove_user(id: int) -> dict:
     for element in ingresos:
         if element['id'] == id:
@@ -86,21 +86,21 @@ def remove_user(id: int) -> dict:
     }, status_code=404)
     
 #egresos
-@app.get('/egresos', tags=['egresos'], response_model=List[Egreso], description="Returns all egresos stored")
+@app.get('/api/v1/egresos', tags=['egresos'], response_model=List[Egreso], description="Returns all egresos stored")
 def get_all_egresos() -> List[Egreso]:
     result = []
     for element in egresos:
         result.append(element)
     return JSONResponse(content=result, status_code=200)
 
-@app.get('/egresos/{id}', tags=['egresos'], response_model=Egreso, description="Returns data of one specific egreso")
+@app.get('/api/v1/egresos/{id}', tags=['egresos'], response_model=Egreso, description="Returns data of one specific egreso")
 def get_egreso(id: int) -> Egreso:
     for element in egresos:
         if element["id"] == id:
             return JSONResponse(content=element, status_code=200)
     return JSONResponse(content=None, status_code=404)
 
-@app.post('/egresos', tags=['egresos'], response_model=dict, description="Creates a new egreso")
+@app.post('/api/v1/egresos', tags=['egresos'], response_model=dict, description="Creates a new egreso")
 def create_egreso(egreso: Egreso = Body()) -> dict:
     global contador
     egreso.id = contador
@@ -112,7 +112,7 @@ def create_egreso(egreso: Egreso = Body()) -> dict:
         "data": egreso.model_dump()
     }, status_code=201)
 
-@app.delete('/egresos/{id}', tags=['egresos'], response_model=dict, description="Removes specific egreso")
+@app.delete('/api/v1/egresos/{id}', tags=['egresos'], response_model=dict, description="Removes specific egreso")
 def remove_egreso(id: int) -> dict:
     for element in egresos:
         if element['id'] == id:
@@ -147,11 +147,11 @@ def calcular_reporte_simple():
         "balance": balance
     }
 
-@app.get('/reporte/simple', response_model=dict, description="Reporte con información basica")
+@app.get('/api/v1/reporte/simple', response_model=dict, description="Reporte con información basica")
 def reporte_simple() -> dict:
     return JSONResponse(content=calcular_reporte_simple(), status_code=200)
 
-@app.get('/reporte/ampliado')
+@app.get('/api/v1/reporte/ampliado')
 def reporte_ampliado():
     ingresos_agrupados = {}
     egresos_agrupados = {}
