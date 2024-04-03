@@ -166,5 +166,5 @@ def reporte_ampliado():
     
     return JSONResponse(content={
         "ingresos_agrupados": ingresos_agrupados,
-        "egresos_agrupados": egresos_agrupados,
+        "egresos_agrupados": egresos_agrupados
     },status_code=200)
