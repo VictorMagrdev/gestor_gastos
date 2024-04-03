@@ -136,7 +136,7 @@ def reporte_simple() -> dict:
             total_ingresos += ingreso["valor"]
     if len(egresos) > 0 :
         for egreso in egresos:
-            total_ingresos += egreso["valor"]
+            total_egresos += egreso["valor"]
     
     balance = total_ingresos - total_egresos
     
@@ -166,5 +166,5 @@ def reporte_ampliado():
     
     return JSONResponse(content={
         "ingresos_agrupados": ingresos_agrupados,
-        "egresos_agrupados": egresos_agrupados
+        "egresos_agrupados": egresos_agrupados,
     },status_code=200)
