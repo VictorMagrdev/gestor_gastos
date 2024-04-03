@@ -132,37 +132,39 @@ def reporte_simple():
     total_egresos = 0
 
     if len(ingresos) > 0:
-        total_ingresos = sum(ingreso.valor for ingreso in ingresos)
-    elif len(egresos) > 0 :
-        total_egresos = sum(egreso.valor for egreso in egresos)
+        for ingreso in ingresos:
+            total_ingresos += ingreso["valor"]
+    if len(egresos) > 0 :
+        for egreso in egresos:
+            total_ingresos += egreso["valor"]
     
     balance = total_ingresos - total_egresos
     
-    return {
+    return JSONResponse(content={
         "numero de ingresos": len(ingresos),
         "total_ingresos": total_ingresos,
         "numero de egresos": len(egresos),
         "total_egresos": total_egresos,
         "balance": balance
-    }
+    },status_code=200)
 
 @app.get('/reporte/ampliado')
 def reporte_ampliado():
     ingresos_agrupados = {}
     egresos_agrupados = {}
     for ingreso in ingresos:
-        if ingreso.categoria in ingresos_agrupados:
-            ingresos_agrupados[ingreso.categoria] += ingreso.valor
+        if ingreso["categoria"] in ingresos_agrupados:
+            ingresos_agrupados[ingreso["categoria"]] += ingreso["valor"]
         else:
-            ingresos_agrupados[ingreso.categoria] = ingreso.valor
+            ingresos_agrupados[ingreso["categoria"]] = ingreso["valor"]
 
     for egreso in egresos:
-        if egreso.categoria in egresos_agrupados:
-            egresos_agrupados[egreso.categoria] += egreso.valor
+        if egreso["categoria"] in egresos_agrupados:
+            egresos_agrupados[egreso["categoria"]] += egreso["valor"]
         else:
-            egresos_agrupados[egreso.categoria] = egreso.valor
+            egresos_agrupados[egreso["categoria"]] = egreso["valor"]
     
-    return {
+    return JSONResponse(content={
         "ingresos_agrupados": ingresos_agrupados,
         "egresos_agrupados": egresos_agrupados
-    }
+    },status_code=200)
