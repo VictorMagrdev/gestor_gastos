@@ -3,46 +3,21 @@ from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
 from fastapi.responses import JSONResponse
+from src.middlewares.error_handler import ErrorHandler
+from src.schemas.ingreso import Ingreso
+from src.schemas.egreso import Egreso
 
 app = FastAPI()
+
+app.add_middleware(ErrorHandler)
 
 contador = 0
 egresos = []
 ingresos = []
 
-ingresos_categorias = ["Pago de nomina", "Pago contrato", "Pago arriendo", "Mesada"]
-egreso_categorias= ["alimentacion", "transporte", "ocio", "libros"]
 @app.get("/api/v1")
 def great():
     return {"Hello": "World"}
-
-class Egreso(BaseModel):
-    id:                 int | None = Field(default=None, primary_key=True)
-    fecha:              str | None = Field(default=None, title="Entry transaction date")
-    descripcion:        str = Field(min_length=4, max_length=64, title="entry transaction description")
-    valor:              float = Field(default="1000", le=5000000, lg=100, title="Price of entry transaction")
-    categoria:          str = Field(min_length=4, max_length=128, title="category of entry transaction")
-    
-    @validator("categoria")
-    @classmethod
-    def validar_categoria_egreso(cls, categoria):
-        if categoria not in egreso_categorias:
-            raise ValueError("Categoria incorrecta para los egresos")
-        return categoria
-    
-class Ingreso(BaseModel):
-    id:                 int | None = Field(default=None, primary_key=True)
-    fecha:              str | None = Field(default=None, title="Entry transaction date")
-    descripcion:        str = Field(min_length=4, max_length=64, title="entry transaction description")
-    valor:              float = Field(default="1000", le=5000000, lg=100, title="Price of entry transaction")
-    categoria:          str = Field(min_length=4, max_length=128, title="category of entry transaction")
-
-    @validator("categoria")
-    @classmethod
-    def validar_categoria_ingreso(cls, categoria):
-        if categoria not in ingresos_categorias:
-            raise ValueError("Categoria incorrecta para los ingresos")
-        return categoria
         
 #ENDPOINTS INGRESOS
 @app.get('/api/v1/ingresos', tags=['ingresos'], response_model=List[Ingreso], description="Returns all ingresos stored")
