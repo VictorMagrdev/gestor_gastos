@@ -128,8 +128,14 @@ def remove_egreso(id: int) -> dict:
 
 @app.get('/reporte/simple')
 def reporte_simple():
-    total_ingresos = sum(ingreso.valor for ingreso in ingresos)
-    total_egresos = sum(egreso.valor for egreso in egresos)
+    total_ingresos = 0
+    total_egresos = 0
+
+    if len(ingresos) > 0:
+        total_ingresos = sum(ingreso.valor for ingreso in ingresos)
+    elif len(egresos) > 0 :
+        total_egresos = sum(egreso.valor for egreso in egresos)
+    
     balance = total_ingresos - total_egresos
     
     return {
