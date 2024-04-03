@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import List
 from fastapi import FastAPI, Body
 from pydantic import BaseModel, Field, validator
 from datetime import datetime
@@ -126,4 +126,37 @@ def remove_egreso(id: int) -> dict:
         "data": None
     }, status_code=404)
 
+@app.get('/reporte/simple')
+def reporte_simple():
+    total_ingresos = sum(ingreso.valor for ingreso in ingresos)
+    total_egresos = sum(egreso.valor for egreso in egresos)
+    balance = total_ingresos - total_egresos
+    
+    return {
+        "numero de ingresos": len(ingresos),
+        "total_ingresos": total_ingresos,
+        "numero de egresos": len(egresos),
+        "total_egresos": total_egresos,
+        "balance": balance
+    }
 
+@app.get('/reporte/ampliado')
+def reporte_ampliado():
+    ingresos_agrupados = {}
+    egresos_agrupados = {}
+    for ingreso in ingresos:
+        if ingreso.categoria in ingresos_agrupados:
+            ingresos_agrupados[ingreso.categoria] += ingreso.valor
+        else:
+            ingresos_agrupados[ingreso.categoria] = ingreso.valor
+
+    for egreso in egresos:
+        if egreso.categoria in egresos_agrupados:
+            egresos_agrupados[egreso.categoria] += egreso.valor
+        else:
+            egresos_agrupados[egreso.categoria] = egreso.valor
+    
+    return {
+        "ingresos_agrupados": ingresos_agrupados,
+        "egresos_agrupados": egresos_agrupados
+    }
