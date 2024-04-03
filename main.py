@@ -163,8 +163,10 @@ def reporte_ampliado():
             egresos_agrupados[egreso["categoria"]] += egreso["valor"]
         else:
             egresos_agrupados[egreso["categoria"]] = egreso["valor"]
+        
     
     return JSONResponse(content={
         "ingresos_agrupados": ingresos_agrupados,
-        "egresos_agrupados": egresos_agrupados
+        "egresos_agrupados": egresos_agrupados,
+        "reporteS": reporte_simple().json()
     },status_code=200)
