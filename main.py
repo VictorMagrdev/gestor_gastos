@@ -126,8 +126,8 @@ def remove_egreso(id: int) -> dict:
         "data": None
     }, status_code=404)
 
-@app.get('/reporte/simple')
-def reporte_simple():
+@app.get('/reporte/simple', response_model=dict, description="Reporte con información basica")
+def reporte_simple() -> dict:
     total_ingresos = 0
     total_egresos = 0
 
