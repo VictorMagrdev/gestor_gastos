@@ -1,11 +1,7 @@
-from datetime import datetime
-from fastapi import APIRouter, Body, Query, Path, status
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from typing import List
-from src.schemas.ingreso import Ingreso
-from ingresos import ingresos
-from src.schemas.egreso import Egreso
-from egresos import egresos
+from src.routers.egresos import egresos
+from src.routers.ingresos import ingresos
 
 reportes_router = APIRouter()
 
@@ -30,11 +26,11 @@ def calcular_reporte_simple():
         "balance": balance
     }
 
-@reportes_router.get('/api/v1/reporte/simple', response_model=dict, description="Reporte con información basica")
+@reportes_router.get('/simple', response_model=dict, description="Reporte con información basica")
 def reporte_simple() -> dict:
     return JSONResponse(content=calcular_reporte_simple(), status_code=200)
 
-@reportes_router.get('/api/v1/reporte/ampliado')
+@reportes_router.get('/ampliado')
 def reporte_ampliado():
     ingresos_agrupados = {}
     egresos_agrupados = {}

@@ -1,8 +1,9 @@
 from datetime import datetime
-from fastapi import APIRouter, Body, Query, Path, status
+from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
 from typing import List
 from src.schemas.egreso import Egreso
+from src.routers.contador import contador
 
 egresos_router = APIRouter()
 
