@@ -9,6 +9,8 @@ class Ingreso(BaseModel):
     descripcion:        str = Field(min_length=4, max_length=64, title="entry transaction description")
     valor:              float = Field(default="1000", le=5000000, lg=100, title="Price of entry transaction")
     categoria:          str = Field(min_length=4, max_length=128, title="category of entry transaction")
+    owner_id:           int = Field(ge=1, title="Owner of the product")
+
 
     @validator("categoria")
     @classmethod

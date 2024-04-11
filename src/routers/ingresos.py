@@ -4,10 +4,12 @@ from fastapi.responses import JSONResponse
 from typing import List
 from src.schemas.ingreso import Ingreso
 from src.routers.contador import contador
+from src.config.database import SessionLocal
+from src.models.product import Product as ProductModel
+from fastapi.encoders import jsonable_encoder
 
 ingreso_router = APIRouter()
 
-ingresos = []
 
 @ingreso_router.get('/', tags=['ingresos'], response_model=List[Ingreso], description="Returns all ingresos stored")
 def get_all_ingresos() -> List[Ingreso]:
