@@ -55,17 +55,49 @@ def create_ingreso(ingreso: Ingreso = Body()) -> dict:
         "data": ingreso.model_dump()
     }, status_code=status.HTTP_201_CREATED)
 
-@ingreso_router.delete('/{id}', tags=['ingresos'], response_model=dict, description="Removes specific ingreso")
-def remove_user(id: int) -> dict:
-    for element in ingresos:
-        if element['id'] == id:
-            ingresos.remove(element)
-            return JSONResponse(content={
-                "message": "The ingreso was removed successfully",
-                "data": None
-            }, status_code=204)
+
+@ingreso_router.put('/{id}',
+                    tags=['ingresos'],
+                    response_model=dict,
+                    description="Updates the data of specific ingreso")
+def update_ingreso(id: int = Path(ge=1),
+    ingreso: Ingreso = Body()) -> dict:
+    db = SessionLocal()
+    
+    element = db.query(IngresoModel).filter(IngresoModel.id == id).first()
+    if not element:
+        return JSONResponse(content={
+            "message": "The requested ingreso was not found",
+            "data": None
+        }, status_code=status.HTTP_404_NOT_FOUND)
+        
+    element.descripcion = ingreso.descripcion
+    element.valor = ingreso.valor
+    element.categoria = ingreso.categoria
+    db.commit()
+    
     return JSONResponse(content={
-        "message": "The ingreso does not exists",
+        "message": "The ingreso was successfully updated",
+        "data": jsonable_encoder(element)
+    }, status_code=status.HTTP_200_OK)
+
+
+@ingreso_router.delete('/{id}',
+                       tags=['ingresos'],
+                       response_model=dict,
+                       description="Removes specific ingreso")
+def remove_product(id: int = Path(ge=1)) -> dict:
+    db = SessionLocal()
+    element = db.query(IngresoModel).filter(IngresoModel.id == id).first()
+    if not element:
+        return JSONResponse(content={
+        "message": "The requested Ingreso was not found",
         "data": None
-    }, status_code=404)
+        }, status_code=status.HTTP_404_NOT_FOUND)
+    db.delete(element)
+    db.commit()
+    return JSONResponse(content={
+        "message": "The Ingreso wass removed successfully",
+        "data": None
+    }, status_code=status.HTTP_200_OK)
     
