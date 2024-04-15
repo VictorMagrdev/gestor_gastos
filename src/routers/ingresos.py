@@ -1,9 +1,7 @@
-from datetime import datetime
 from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
 from typing import List
 from src.schemas.ingreso import Ingreso
-from src.routers.contador import contador
 from src.config.database import SessionLocal
 from src.models.ingreso import Ingreso as IngresoModel
 from fastapi.encoders import jsonable_encoder
