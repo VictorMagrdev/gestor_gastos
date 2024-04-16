@@ -1,11 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
-from src.routers.egresos import egresos
-from src.routers.ingresos import ingresos
+from typing import List
+from src.schemas.ingreso import Ingreso
+from src.config.database import SessionLocal
+from src.models.ingreso import Ingreso as IngresoModel
+from src.models.egreso import Egreso as EgresoModel
+from fastapi.encoders import jsonable_encoder
 
 reportes_router = APIRouter()
 
-def calcular_reporte_simple():
+def calcular_reporte_simple(ingresos, egresos):
     total_ingresos = 0
     total_egresos = 0
 
@@ -26,14 +30,34 @@ def calcular_reporte_simple():
         "balance": balance
     }
 
-@reportes_router.get('/simple', response_model=dict, description="Reporte con información basica")
+@reportes_router.get('/simple',
+                     response_model=dict,
+                     description="Reporte con información basica")
 def reporte_simple() -> dict:
-    return JSONResponse(content=calcular_reporte_simple(), status_code=200)
+    db = SessionLocal()
+    try:
+        query_ingresos = db.query(IngresoModel)
+        query_egresos = db.query(EgresoModel)
+        ingresos = query_ingresos.all()
+        egresos = query_egresos.all()
+        return calcular_reporte_simple(ingresos, egresos)
+    finally:
+        db.close()
+
+
 
 @reportes_router.get('/ampliado')
 def reporte_ampliado():
     ingresos_agrupados = {}
     egresos_agrupados = {}
+    
+    db = SessionLocal()
+    
+    query_ingresos = db.query(IngresoModel)
+    query_egresos = db.query(EgresoModel)
+    ingresos = query_ingresos.all()
+    egresos = query_egresos.all()
+    
     for ingreso in ingresos:
         if ingreso["categoria"] in ingresos_agrupados:
             ingresos_agrupados[ingreso["categoria"]] += ingreso["valor"]
@@ -49,5 +73,5 @@ def reporte_ampliado():
     return JSONResponse(content={
         "ingresos_agrupados": ingresos_agrupados,
         "egresos_agrupados": egresos_agrupados,
-        "reporteS": calcular_reporte_simple()
+        "reporteS": calcular_reporte_simple(ingresos, egresos)
     }, status_code=200)

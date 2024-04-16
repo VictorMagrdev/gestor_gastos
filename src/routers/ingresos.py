@@ -19,7 +19,7 @@ def get_all_ingresos(offset: int = Query(default=None, min=0),
     result = query.all()
     return JSONResponse(content=jsonable_encoder(result), status_code=status.HTTP_200_OK)
 
-
+    
 @ingreso_router.get('/{id}',
                     tags=['ingresos'],
                     response_model=Ingreso,

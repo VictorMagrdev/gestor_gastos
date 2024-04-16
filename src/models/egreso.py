@@ -11,3 +11,6 @@ class Egreso(Base):
     descripcion =   Column(String(length=64))
     valor       =   Column(Float, index=True)
     categoria   =   Column(Enum("alimentacion", "transporte", "ocio", "libros"))
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    
+    owner = relationship("User", back_populates="egresos")

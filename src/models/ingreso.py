@@ -11,3 +11,7 @@ class Ingreso(Base):
     descripcion = Column(String(length=64))
     valor = Column(Float, index=True)
     categoria   =   Column(Enum("Pago de nomina", "Pago contrato", "Pago arriendo", "Mesada"))
+    owner_id = Column(Integer, ForeignKey("users.id"))
+    
+    owner = relationship("User", back_populates="ingresos")
+    
