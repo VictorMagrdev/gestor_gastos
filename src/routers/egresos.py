@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
 from typing import List
-from src.schemas.egreso import Egreso
 from src.config.database import SessionLocal
-from src.models.egreso import Egreso
+from src.models.egreso import Egreso as EgresoModel
 from src.repositories.egreso import EgresoRepository
 from fastapi.encoders import jsonable_encoder
 
@@ -13,7 +12,7 @@ egreso_router = APIRouter()
 @egreso_router.get(
     "/",
     tags=["egresos"],
-    response_model=List[Egreso],
+    response_model=List[EgresoModel],
     description="Returns all egresos stored",
 )
 def get_all_egresos(
@@ -21,7 +20,7 @@ def get_all_egresos(
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
-) -> List[Egreso]:
+) -> List[EgresoModel]:
     db = SessionLocal()
     result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
     return JSONResponse(
@@ -32,10 +31,10 @@ def get_all_egresos(
 @egreso_router.get(
     "/{id}",
     tags=["egresos"],
-    response_model=Egreso,
+    response_model=EgresoModel,
     description="Returns data of one specific egreso",
 )
-def get_egreso(id: int = Path(ge=1, le=5000)) -> Egreso:
+def get_egreso(id: int = Path(ge=1, le=5000)) -> EgresoModel:
     db = SessionLocal()
     element = EgresoRepository(db).get_egreso(id)
     if not element:
@@ -51,7 +50,7 @@ def get_egreso(id: int = Path(ge=1, le=5000)) -> Egreso:
 @egreso_router.post(
     "/", tags=["egresos"], response_model=dict, description="Creates a new egreso"
 )
-def create_egreso(egreso: Egreso = Body()) -> dict:
+def create_egreso(egreso: EgresoModel = Body()) -> dict:
     db = SessionLocal()
     new_egreso = EgresoRepository(db).create_egreso(egreso)
     return JSONResponse(
@@ -69,7 +68,7 @@ def create_egreso(egreso: Egreso = Body()) -> dict:
     response_model=dict,
     description="Updates the data of specific egreso",
 )
-def update_egreso(id: int = Path(ge=1), egreso: Egreso = Body()) -> dict:
+def update_egreso(id: int = Path(ge=1), egreso: EgresoModel = Body()) -> dict:
     db = SessionLocal()
     element = EgresoRepository(db).update_egreso(id, egreso)
     return JSONResponse(

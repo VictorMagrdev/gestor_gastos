@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
 from typing import List
-from src.schemas.ingreso import Ingreso
 from src.config.database import SessionLocal
 from src.models.ingreso import Ingreso as IngresoModel
 from src.repositories.ingreso import IngresoRepository
@@ -21,7 +20,7 @@ def get_all_ingresos(
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
-) -> List[Ingreso]:
+) -> List[IngresoModel]:
     db = SessionLocal()
     result = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
     return JSONResponse(
