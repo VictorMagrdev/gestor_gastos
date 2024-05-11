@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Body, status, Query, Path
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
-from typing import List
-from src.schemas.ingreso import Ingreso
 from src.config.database import SessionLocal
-from src.models.ingreso import Ingreso as IngresoModel
-from src.models.egreso import Egreso as EgresoModel
-from fastapi.encoders import jsonable_encoder
+from src.repositories.egreso import EgresoRepository
+from src.repositories.ingreso import IngresoRepository
 
 reportes_router = APIRouter()
+
 
 def calcular_reporte_simple(ingresos, egresos):
     total_ingresos = 0
@@ -27,37 +25,40 @@ def calcular_reporte_simple(ingresos, egresos):
         "total_ingresos": total_ingresos,
         "numero de egresos": len(egresos),
         "total_egresos": total_egresos,
-        "balance": balance
+        "balance": balance,
     }
 
-@reportes_router.get('/simple',
-                     response_model=dict,
-                     description="Reporte con información basica")
-def reporte_simple() -> dict:
+
+@reportes_router.get(
+    "/simple", response_model=dict, description="Reporte con información basica"
+)
+def reporte_simple(
+    min_valor: float = Query(default=None, min=10, max=5000000),
+    max_valor: float = Query(default=None, min=10, max=5000000),
+    offset: int = Query(default=None, min=0),
+    limit: int = Query(default=None, min=1),
+) -> dict:
     db = SessionLocal()
-    try:
-        query_ingresos = db.query(IngresoModel)
-        query_egresos = db.query(EgresoModel)
-        ingresos = query_ingresos.all()
-        egresos = query_egresos.all()
-        return calcular_reporte_simple(ingresos, egresos)
-    finally:
-        db.close()
+    ingresos = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
+    egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
+    return calcular_reporte_simple(ingresos, egresos)
 
 
-
-@reportes_router.get('/ampliado')
-def reporte_ampliado():
+@reportes_router.get("/ampliado")
+def reporte_ampliado(
+    min_valor: float = Query(default=None, min=10, max=5000000),
+    max_valor: float = Query(default=None, min=10, max=5000000),
+    offset: int = Query(default=None, min=0),
+    limit: int = Query(default=None, min=1),
+):
     ingresos_agrupados = {}
     egresos_agrupados = {}
-    
+
     db = SessionLocal()
-    
-    query_ingresos = db.query(IngresoModel)
-    query_egresos = db.query(EgresoModel)
-    ingresos = query_ingresos.all()
-    egresos = query_egresos.all()
-    
+
+    ingresos = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
+    egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
+
     for ingreso in ingresos:
         if ingreso["categoria"] in ingresos_agrupados:
             ingresos_agrupados[ingreso["categoria"]] += ingreso["valor"]
@@ -70,8 +71,11 @@ def reporte_ampliado():
         else:
             egresos_agrupados[egreso["categoria"]] = egreso["valor"]
 
-    return JSONResponse(content={
-        "ingresos_agrupados": ingresos_agrupados,
-        "egresos_agrupados": egresos_agrupados,
-        "reporteS": calcular_reporte_simple(ingresos, egresos)
-    }, status_code=200)
+    return JSONResponse(
+        content={
+            "ingresos_agrupados": ingresos_agrupados,
+            "egresos_agrupados": egresos_agrupados,
+            "reporteS": calcular_reporte_simple(ingresos, egresos),
+        },
+        status_code=200,
+    )
