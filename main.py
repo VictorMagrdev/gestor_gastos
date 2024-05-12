@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from src.middlewares.error_handler import ErrorHandler
 from src.routers.ingresos import ingreso_router
-from src.routers.egresos import egresos_router
+from src.routers.egresos import egreso_router
 from src.routers.reportes import reportes_router
 from src.config.database import Base, engine
 from src.routers.auth import auth_router
@@ -32,7 +32,7 @@ app.openapi_tags = [
 
 app.add_middleware(ErrorHandler)
 app.include_router(prefix="/api/v1/ingresos", router=ingreso_router)
-app.include_router(prefix="/api/v1/egresos", router=egresos_router)
+app.include_router(prefix="/api/v1/egresos", router=egreso_router)
 app.include_router(prefix="/api/v1/reporte", router=reportes_router)
 app.include_router(prefix="", router=auth_router)
 Base.metadata.create_all(bind=engine)

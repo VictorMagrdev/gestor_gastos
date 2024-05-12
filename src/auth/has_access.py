@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from src.auth.jwt_handler import JWTHandler
@@ -12,7 +13,7 @@ async def has_access(
         token = credentials.credentials
         payload = JWTHandler().decode_token(token)
         return payload
-    except:
+    except JSONDecodeError:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
         )

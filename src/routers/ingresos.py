@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
 from typing import List
 from src.config.database import SessionLocal
-from src.models.ingreso import Ingreso as IngresoModel
+from src.schemas.ingreso import Ingreso
 from src.repositories.ingreso import IngresoRepository
 from fastapi.encoders import jsonable_encoder
 
@@ -12,7 +12,7 @@ ingreso_router = APIRouter()
 @ingreso_router.get(
     "/",
     tags=["ingresos"],
-    response_model=List[IngresoModel],
+    response_model=List[Ingreso],
     description="Returns all ingresos stored",
 )
 def get_all_ingresos(
@@ -20,7 +20,7 @@ def get_all_ingresos(
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
-) -> List[IngresoModel]:
+) -> List[Ingreso]:
     db = SessionLocal()
     result = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
     return JSONResponse(
@@ -31,10 +31,10 @@ def get_all_ingresos(
 @ingreso_router.get(
     "/{id}",
     tags=["ingresos"],
-    response_model=IngresoModel,
+    response_model=Ingreso,
     description="Returns data of one specific ingreso",
 )
-def get_ingreso(id: int = Path(ge=1, le=5000)) -> IngresoModel:
+def get_ingreso(id: int = Path(ge=1, le=5000)) -> Ingreso:
     db = SessionLocal()
     element = IngresoRepository(db).get_ingreso(id)
     if not element:
@@ -50,7 +50,7 @@ def get_ingreso(id: int = Path(ge=1, le=5000)) -> IngresoModel:
 @ingreso_router.post(
     "/", tags=["ingresos"], response_model=dict, description="Creates a new ingreso"
 )
-def create_ingreso(ingreso: IngresoModel = Body()) -> dict:
+def create_ingreso(ingreso: Ingreso = Body()) -> dict:
     db = SessionLocal()
     new_ingreso = IngresoRepository(db).create_ingreso(ingreso)
     return JSONResponse(
@@ -68,7 +68,7 @@ def create_ingreso(ingreso: IngresoModel = Body()) -> dict:
     response_model=dict,
     description="Updates the data of specific ingreso",
 )
-def update_ingreso(id: int = Path(ge=1), ingreso: IngresoModel = Body()) -> dict:
+def update_ingreso(id: int = Path(ge=1), ingreso: Ingreso = Body()) -> dict:
     db = SessionLocal()
     element = IngresoRepository(db).update_ingreso(id, ingreso)
     return JSONResponse(
