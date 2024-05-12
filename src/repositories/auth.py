@@ -13,7 +13,7 @@ class AuthRepository:
 
 def register_user(self, user: UserCreateSchema) -> dict:
     db = SessionLocal()
-    if UserRepository(db).get_user(email=user.email) != None:
+    if UserRepository(db).get_user(email=user.email) is not None:
         raise Exception("Account already exists")
     hashed_password = auth_handler.hash_password(password=user.password)
     new_user: UserCreateSchema = UserCreateSchema(
