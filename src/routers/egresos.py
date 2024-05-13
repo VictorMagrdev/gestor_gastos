@@ -9,6 +9,7 @@ from src.config.database import SessionLocal
 from src.schemas.egreso import Egreso
 from src.repositories.egreso import EgresoRepository
 from fastapi.encoders import jsonable_encoder
+from src.auth import auth_handler
 
 egreso_router = APIRouter()
 
@@ -26,11 +27,17 @@ def get_all_egresos(
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
 ) -> List[Egreso]:
-    db = SessionLocal()
-    result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
-    return JSONResponse(
-        content=jsonable_encoder(result), status_code=status.HTTP_200_OK
-    )
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
+        return JSONResponse(
+            content=jsonable_encoder(result), status_code=status.HTTP_200_OK
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @egreso_router.get(
@@ -43,16 +50,22 @@ def get_egreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     id: int = Path(ge=1, le=5000),
 ) -> Egreso:
-    db = SessionLocal()
-    element = EgresoRepository(db).get_egreso(id)
-    if not element:
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        element = EgresoRepository(db).get_egreso(id)
+        if not element:
+            return JSONResponse(
+                content={"message": "The requested egreso was not found", "data": None},
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
         return JSONResponse(
-            content={"message": "The requested egreso was not found", "data": None},
-            status_code=status.HTTP_404_NOT_FOUND,
+            content=jsonable_encoder(element), status_code=status.HTTP_200_OK
         )
-    return JSONResponse(
-        content=jsonable_encoder(element), status_code=status.HTTP_200_OK
-    )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @egreso_router.post(
@@ -62,15 +75,21 @@ def create_egreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     egreso: Egreso = Body(),
 ) -> dict:
-    db = SessionLocal()
-    new_egreso = EgresoRepository(db).create_egreso(egreso)
-    return JSONResponse(
-        content={
-            "message": "The egreso was successfully created",
-            "data": jsonable_encoder(new_egreso),
-        },
-        status_code=status.HTTP_201_CREATED,
-    )
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        new_egreso = EgresoRepository(db).create_egreso(egreso)
+        return JSONResponse(
+            content={
+                "message": "The egreso was successfully created",
+                "data": jsonable_encoder(new_egreso),
+            },
+            status_code=status.HTTP_201_CREATED,
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @egreso_router.put(
@@ -84,15 +103,21 @@ def update_egreso(
     id: int = Path(ge=1),
     egreso: Egreso = Body(),
 ) -> dict:
-    db = SessionLocal()
-    element = EgresoRepository(db).update_egreso(id, egreso)
-    return JSONResponse(
-        content={
-            "message": "The egreso was successfully updated",
-            "data": jsonable_encoder(element),
-        },
-        status_code=status.HTTP_200_OK,
-    )
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        element = EgresoRepository(db).update_egreso(id, egreso)
+        return JSONResponse(
+            content={
+                "message": "The egreso was successfully updated",
+                "data": jsonable_encoder(element),
+            },
+            status_code=status.HTTP_200_OK,
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @egreso_router.delete(
@@ -105,9 +130,15 @@ def remove_egreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     id: int = Path(ge=1),
 ) -> dict:
-    db = SessionLocal()
-    EgresoRepository(db).delete_egreso(id)
-    return JSONResponse(
-        content={"message": "The egreso was removed successfully", "data": None},
-        status_code=status.HTTP_200_OK,
-    )
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        EgresoRepository(db).delete_egreso(id)
+        return JSONResponse(
+            content={"message": "The egreso was removed successfully", "data": None},
+            status_code=status.HTTP_200_OK,
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )

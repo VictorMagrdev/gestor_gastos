@@ -7,6 +7,7 @@ from datetime import (
     timedelta,
 )
 from src.repositories.user import UserRepository
+from fastapi.security import HTTPAuthorizationCredentials
 
 
 class JWTHandler:
@@ -76,3 +77,16 @@ def refresh_token(self, refresh_token):
         raise HTTPException(status_code=401, detail="Refresh token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+
+def verify_jwt(self, credentials: HTTPAuthorizationCredentials) -> bool:
+    isTokenValid: bool = False
+    try:
+        token = credentials.credentials
+        payload = self.decode_token(token=token)
+    except jwt.JWSError:
+        payload = None
+    if payload:
+        isTokenValid = True
+
+    return isTokenValid
