@@ -26,7 +26,7 @@ class IngresoRepository:
         return element
 
     def create_ingreso(self, ingreso: IngresoSchema) -> dict:
-        new_ingreso = Ingreso(**ingreso.dict())
+        new_ingreso = Ingreso(**ingreso.model_dump())
         self.db.add(new_ingreso)
         self.db.commit()
         self.db.refresh(new_ingreso)
