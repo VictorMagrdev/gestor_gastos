@@ -9,6 +9,6 @@ class User(Base):
     email = Column(String(length=64), unique=True, index=True)
     name = Column(String(length=60))
     password = Column(String(length=64))
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, default= True)
     ingresos = relationship("Ingreso", back_populates="owner")
     egresos = relationship("Egreso", back_populates="owner")

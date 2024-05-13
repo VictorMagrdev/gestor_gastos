@@ -40,7 +40,13 @@ class JWTHandler:
             "user.name": user.name,
             "user.id": user.id,
         }
-        return jwt.encode(payload, self.secret, algorithm=self.algorithm)
+        jwt_token = None 
+        try: 
+            jwt_token = jwt.encode(payload, self.secret, algorithm=self.algorithm)
+        except Exception as e:
+            print("Error:", e)
+        
+        return jwt_token
 
 
     def decode_token(self, token):

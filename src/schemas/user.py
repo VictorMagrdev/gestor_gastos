@@ -6,7 +6,7 @@ class User(BaseModel):
     id: Optional[int] = Field(default=None, title="Id of the user")
     name: str = Field(min_length=4, max_length=60, title="Name of the user")
     email: EmailStr = Field(min_length=6, max_length=64, title="Email of theuser")
-    pasword: str = Field(max_length=64, title="Password of the user")
+    password: str = Field(max_length=64, title="Password of the user")
     is_active: bool = Field(default=True, title="Status of the user")
 
     class Config:
@@ -16,7 +16,7 @@ class User(BaseModel):
                 "email": "pepe@base.net",
                 "name": "Pepe Pimentón",
                 "password": "xxx",
-                "is_active": 1,
+                "is_active": True,
             }
         }
 
