@@ -3,6 +3,10 @@ from fastapi.responses import JSONResponse
 from src.config.database import SessionLocal
 from src.repositories.egreso import EgresoRepository
 from src.repositories.ingreso import IngresoRepository
+from typing import Annotated
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import Depends
+from src.auth.has_access import security
 
 reportes_router = APIRouter()
 
@@ -33,6 +37,7 @@ def calcular_reporte_simple(ingresos, egresos):
     "/simple", response_model=dict, description="Reporte con información basica"
 )
 def reporte_simple(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     min_valor: float = Query(default=None, min=10, max=5000000),
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
@@ -46,6 +51,7 @@ def reporte_simple(
 
 @reportes_router.get("/ampliado")
 def reporte_ampliado(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     min_valor: float = Query(default=None, min=10, max=5000000),
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),

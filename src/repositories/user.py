@@ -13,11 +13,6 @@ def get_user(self, id: int) -> UserSchema:
     return element
 
 
-def get_user(self, email: str) -> UserSchema:
-    element = self.db.query(UserModel).filter(UserModel.email == email).first()
-    return element
-
-
 def create_user(self, user: UserCreateSchema) -> dict:
     new_user = UserModel(**user.model_dump())
     self.db.add(new_user)

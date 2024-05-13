@@ -1,8 +1,12 @@
 from fastapi import APIRouter, Body, status, Query, Path
+from typing import Annotated
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import Depends
+from src.auth.has_access import security
 from fastapi.responses import JSONResponse
 from typing import List
 from src.config.database import SessionLocal
-from src.models.egreso import Egreso as EgresoModel
+from src.schemas.egreso import Egreso
 from src.repositories.egreso import EgresoRepository
 from fastapi.encoders import jsonable_encoder
 
@@ -12,15 +16,16 @@ egreso_router = APIRouter()
 @egreso_router.get(
     "/",
     tags=["egresos"],
-    response_model=List[EgresoModel],
+    response_model=List[Egreso],
     description="Returns all egresos stored",
 )
 def get_all_egresos(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     min_valor: float = Query(default=None, min=10, max=5000000),
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
-) -> List[EgresoModel]:
+) -> List[Egreso]:
     db = SessionLocal()
     result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
     return JSONResponse(
@@ -31,10 +36,13 @@ def get_all_egresos(
 @egreso_router.get(
     "/{id}",
     tags=["egresos"],
-    response_model=EgresoModel,
+    response_model=Egreso,
     description="Returns data of one specific egreso",
 )
-def get_egreso(id: int = Path(ge=1, le=5000)) -> EgresoModel:
+def get_egreso(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    id: int = Path(ge=1, le=5000),
+) -> Egreso:
     db = SessionLocal()
     element = EgresoRepository(db).get_egreso(id)
     if not element:
@@ -50,7 +58,10 @@ def get_egreso(id: int = Path(ge=1, le=5000)) -> EgresoModel:
 @egreso_router.post(
     "/", tags=["egresos"], response_model=dict, description="Creates a new egreso"
 )
-def create_egreso(egreso: EgresoModel = Body()) -> dict:
+def create_egreso(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    egreso: Egreso = Body(),
+) -> dict:
     db = SessionLocal()
     new_egreso = EgresoRepository(db).create_egreso(egreso)
     return JSONResponse(
@@ -68,7 +79,11 @@ def create_egreso(egreso: EgresoModel = Body()) -> dict:
     response_model=dict,
     description="Updates the data of specific egreso",
 )
-def update_egreso(id: int = Path(ge=1), egreso: EgresoModel = Body()) -> dict:
+def update_egreso(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    id: int = Path(ge=1),
+    egreso: Egreso = Body(),
+) -> dict:
     db = SessionLocal()
     element = EgresoRepository(db).update_egreso(id, egreso)
     return JSONResponse(
@@ -86,7 +101,10 @@ def update_egreso(id: int = Path(ge=1), egreso: EgresoModel = Body()) -> dict:
     response_model=dict,
     description="Removes specific egreso",
 )
-def remove_egreso(id: int = Path(ge=1)) -> dict:
+def remove_egreso(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    id: int = Path(ge=1),
+) -> dict:
     db = SessionLocal()
     EgresoRepository(db).delete_egreso(id)
     return JSONResponse(
