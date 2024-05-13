@@ -8,9 +8,9 @@ class UserRepository:
         self.db = db
 
 
-    def get_user(self, id: int) -> UserSchema:
-        element = self.db.query(UserModel).filter(UserModel.id == id).first()
-        return element
+    def get_user(self, email: str) -> UserSchema:
+        user = self.db.query(UserModel).filter(UserModel.email == email).first()
+        return user
 
 
     def create_user(self, user: UserCreateSchema) -> dict:
