@@ -5,6 +5,7 @@ from src.routers.ingresos import ingresos
 
 reportes_router = APIRouter()
 
+
 def calcular_reporte_simple():
     total_ingresos = 0
     total_egresos = 0
@@ -23,14 +24,18 @@ def calcular_reporte_simple():
         "total_ingresos": total_ingresos,
         "numero de egresos": len(egresos),
         "total_egresos": total_egresos,
-        "balance": balance
+        "balance": balance,
     }
 
-@reportes_router.get('/simple', response_model=dict, description="Reporte con información basica")
+
+@reportes_router.get(
+    "/simple", response_model=dict, description="Reporte con información basica"
+)
 def reporte_simple() -> dict:
     return JSONResponse(content=calcular_reporte_simple(), status_code=200)
 
-@reportes_router.get('/ampliado')
+
+@reportes_router.get("/ampliado")
 def reporte_ampliado():
     ingresos_agrupados = {}
     egresos_agrupados = {}
@@ -46,8 +51,11 @@ def reporte_ampliado():
         else:
             egresos_agrupados[egreso["categoria"]] = egreso["valor"]
 
-    return JSONResponse(content={
-        "ingresos_agrupados": ingresos_agrupados,
-        "egresos_agrupados": egresos_agrupados,
-        "reporteS": calcular_reporte_simple()
-    }, status_code=200)
+    return JSONResponse(
+        content={
+            "ingresos_agrupados": ingresos_agrupados,
+            "egresos_agrupados": egresos_agrupados,
+            "reporteS": calcular_reporte_simple(),
+        },
+        status_code=200,
+    )
