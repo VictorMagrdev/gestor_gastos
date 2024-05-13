@@ -5,6 +5,11 @@ from src.config.database import SessionLocal
 from src.models.ingreso import Ingreso as IngresoModel
 from src.repositories.ingreso import IngresoRepository
 from fastapi.encoders import jsonable_encoder
+from typing import Annotated
+from fastapi.security import HTTPAuthorizationCredentials
+from fastapi import Depends
+from src.auth.has_access import security
+from src.auth import auth_handler
 
 ingreso_router = APIRouter()
 
@@ -16,11 +21,16 @@ ingreso_router = APIRouter()
     description="Returns all ingresos stored",
 )
 def get_all_ingresos(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     min_valor: float = Query(default=None, min=10, max=5000000),
     max_valor: float = Query(default=None, min=10, max=5000000),
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
 ) -> List[IngresoModel]:
+    token = credentials.credentials
+    payload = auth_handler.decode_token(token=token)
+    if payload:
+        issue = payload.get("sub")
     db = SessionLocal()
     result = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
     return JSONResponse(
