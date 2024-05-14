@@ -6,7 +6,7 @@ from src.auth.has_access import security
 from fastapi.responses import JSONResponse
 from typing import List
 from src.config.database import SessionLocal
-from src.schemas.ingreso import Egreso, EgresoCreate
+from src.schemas.egreso import Egreso, EgresoCreate
 from src.repositories.egreso import EgresoRepository
 from fastapi.encoders import jsonable_encoder
 from src.auth import auth_handler

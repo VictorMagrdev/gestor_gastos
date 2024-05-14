@@ -2,6 +2,7 @@ from typing import List
 from src.models.ingreso import Ingreso
 from src.schemas.ingreso import Ingreso as IngresoSchema, IngresoCreate
 
+
 class IngresoRepository:
     def __init__(self, db) -> None:
         self.db = db

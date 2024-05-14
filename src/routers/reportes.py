@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from src.config.database import SessionLocal
 from src.repositories.egreso import EgresoRepository
@@ -7,6 +8,7 @@ from typing import Annotated
 from fastapi.security import HTTPAuthorizationCredentials
 from fastapi import Depends
 from src.auth.has_access import security
+from src.auth import auth_handler
 
 reportes_router = APIRouter()
 
@@ -43,10 +45,22 @@ def reporte_simple(
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
 ) -> dict:
-    db = SessionLocal()
-    ingresos = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
-    egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
-    return calcular_reporte_simple(ingresos, egresos)
+    if auth_handler.verify_jwt(credentials):
+        db = SessionLocal()
+        credential = credentials.credentials
+        owner_id = auth_handler.decode_token(credential)["user.id"]
+        ingresos = IngresoRepository(db).get_ingresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
+        ingresos = jsonable_encoder(ingresos)
+        egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit, owner_id)
+        egresos = jsonable_encoder(egresos)
+        return calcular_reporte_simple(ingresos, egresos)
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
 
 
 @reportes_router.get("/ampliado")
@@ -57,31 +71,44 @@ def reporte_ampliado(
     offset: int = Query(default=None, min=0),
     limit: int = Query(default=None, min=1),
 ):
-    ingresos_agrupados = {}
-    egresos_agrupados = {}
+    if auth_handler.verify_jwt(credentials):
+        ingresos_agrupados = {}
+        egresos_agrupados = {}
 
-    db = SessionLocal()
+        db = SessionLocal()
+        credential = credentials.credentials
+        owner_id = auth_handler.decode_token(credential)["user.id"]
+        ingresos = IngresoRepository(db).get_ingresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
+        ingresos = jsonable_encoder(ingresos)
+        egresos = EgresoRepository(db).get_egresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
+        egresos = jsonable_encoder(egresos)
 
-    ingresos = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit)
-    egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
+        for ingreso in ingresos:
+            if ingreso["categoria"] in ingresos_agrupados:
+                ingresos_agrupados[ingreso["categoria"]] += ingreso["valor"]
+            else:
+                ingresos_agrupados[ingreso["categoria"]] = ingreso["valor"]
 
-    for ingreso in ingresos:
-        if ingreso["categoria"] in ingresos_agrupados:
-            ingresos_agrupados[ingreso["categoria"]] += ingreso["valor"]
-        else:
-            ingresos_agrupados[ingreso["categoria"]] = ingreso["valor"]
+        for egreso in egresos:
+            if egreso["categoria"] in egresos_agrupados:
+                egresos_agrupados[egreso["categoria"]] += egreso["valor"]
+            else:
+                egresos_agrupados[egreso["categoria"]] = egreso["valor"]
 
-    for egreso in egresos:
-        if egreso["categoria"] in egresos_agrupados:
-            egresos_agrupados[egreso["categoria"]] += egreso["valor"]
-        else:
-            egresos_agrupados[egreso["categoria"]] = egreso["valor"]
-
-    return JSONResponse(
-        content={
-            "ingresos_agrupados": ingresos_agrupados,
-            "egresos_agrupados": egresos_agrupados,
-            "reporteS": calcular_reporte_simple(ingresos, egresos),
-        },
-        status_code=200,
-    )
+        return JSONResponse(
+            content={
+                "ingresos_agrupados": ingresos_agrupados,
+                "egresos_agrupados": egresos_agrupados,
+                "reporteS": calcular_reporte_simple(ingresos, egresos),
+            },
+            status_code=200,
+        )
+    else:
+        return JSONResponse(
+            content={"message": "Invalid credentials"},
+            status_code=status.HTTP_401_UNAUTHORIZED,
+        )
