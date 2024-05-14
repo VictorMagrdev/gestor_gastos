@@ -33,7 +33,7 @@ class IngresoRepository:
         self.db.refresh(new_ingreso)
         return new_ingreso
 
-    def update_ingreso(self, id: int, ingreso: IngresoSchema) -> dict:
+    def update_ingreso(self, id: int, ingreso: IngresoCreate) -> dict:
         element = self.db.query(Ingreso).filter(Ingreso.id == id).first()
         element.descripcion = ingreso.descripcion
         element.valor = ingreso.valor

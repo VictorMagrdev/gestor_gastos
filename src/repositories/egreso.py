@@ -1,6 +1,6 @@
 from typing import List
 from src.models.egreso import Egreso
-from src.schemas.egreso import Egreso as EgresoSchema
+from src.schemas.egreso import Egreso as EgresoSchema, EgresoCreate
 
 
 class EgresoRepository:
@@ -25,7 +25,7 @@ class EgresoRepository:
         element = self.db.query(Egreso).filter(Egreso.id == id).first()
         return element
 
-    def create_egreso(self, egreso: EgresoSchema, id: int) -> dict:
+    def create_egreso(self, egreso: EgresoCreate, id: int) -> dict:
         new_egreso = Egreso(**egreso.model_dump())
         new_egreso.owner_id = id
         self.db.add(new_egreso)
@@ -33,7 +33,7 @@ class EgresoRepository:
         self.db.refresh(new_egreso)
         return new_egreso
 
-    def update_egreso(self, id: int, egreso: EgresoSchema) -> dict:
+    def update_egreso(self, id: int, egreso: EgresoCreate) -> dict:
         element = self.db.query(Egreso).filter(Egreso.id == id).first()
         element.descripcion = egreso.descripcion
         element.valor = egreso.valor

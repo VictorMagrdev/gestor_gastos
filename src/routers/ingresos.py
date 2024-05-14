@@ -110,7 +110,7 @@ def create_ingreso(
 def update_ingreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     id: int = Path(ge=1),
-    ingreso: Ingreso = Body(),
+    ingreso: IngresoCreate = Body(),
 ) -> dict:
     if auth_handler.verify_jwt(credentials):
         db = SessionLocal()

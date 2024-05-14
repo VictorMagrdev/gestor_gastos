@@ -87,7 +87,7 @@ class JWTHandler:
         try:
             token = credentials.credentials
             payload = self.decode_token(token=token)
-        except jwt.JWSError:
+        except jwt.PyJWKError:
             payload = None
         if payload:
             isTokenValid = True

@@ -107,7 +107,7 @@ def create_egreso(
 def update_egreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     id: int = Path(ge=1),
-    egreso: Egreso = Body(),
+    egreso: EgresoCreate = Body(),
 ) -> dict:
     if auth_handler.verify_jwt(credentials):
         db = SessionLocal()

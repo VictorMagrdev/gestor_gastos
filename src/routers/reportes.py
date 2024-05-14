@@ -53,7 +53,9 @@ def reporte_simple(
             min_valor, max_valor, offset, limit, owner_id
         )
         ingresos = jsonable_encoder(ingresos)
-        egresos = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit, owner_id)
+        egresos = EgresoRepository(db).get_egresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
         egresos = jsonable_encoder(egresos)
         return calcular_reporte_simple(ingresos, egresos)
     else:
