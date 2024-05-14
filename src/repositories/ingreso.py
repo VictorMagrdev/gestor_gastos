@@ -1,6 +1,6 @@
 from typing import List
 from src.models.ingreso import Ingreso
-from src.schemas.ingreso import Ingreso as IngresoSchema
+from src.schemas.ingreso import Ingreso as IngresoSchema, IngresoCreate
 
 
 class IngresoRepository:
@@ -25,8 +25,9 @@ class IngresoRepository:
         element = self.db.query(Ingreso).filter(Ingreso.id == id).first()
         return element
 
-    def create_ingreso(self, ingreso: IngresoSchema) -> dict:
+    def create_ingreso(self, ingreso: IngresoCreate, id: int) -> dict:
         new_ingreso = Ingreso(**ingreso.model_dump())
+        new_ingreso.owner_id = id
         self.db.add(new_ingreso)
         self.db.commit()
         self.db.refresh(new_ingreso)

@@ -10,7 +10,6 @@ class AuthRepository:
     def __init__(self) -> None:
         pass
 
-
     def register_user(self, user: UserCreateSchema) -> dict:
         db = SessionLocal()
         if UserRepository(db).get_user(email=user.email) is not None:
@@ -20,7 +19,6 @@ class AuthRepository:
             name=user.name, email=user.email, password=hashed_password, is_active=True
         )
         return UserRepository(db).create_user(new_user)
-
 
     def login_user(self, user: UserLoginSchema) -> dict:
         db = SessionLocal()
@@ -43,7 +41,7 @@ class AuthRepository:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials (2)",
             )
-        access_token = auth_handler.encode_token(check_user)        
+        access_token = auth_handler.encode_token(check_user)
         refresh_token = auth_handler.encode_refresh_token(check_user)
-        
+
         return access_token, refresh_token

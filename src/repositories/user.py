@@ -7,11 +7,9 @@ class UserRepository:
     def __init__(self, db) -> None:
         self.db = db
 
-
     def get_user(self, email: str) -> UserSchema:
         user = self.db.query(UserModel).filter(UserModel.email == email).first()
         return user
-
 
     def create_user(self, user: UserCreateSchema) -> dict:
         new_user = UserModel(**user.model_dump())

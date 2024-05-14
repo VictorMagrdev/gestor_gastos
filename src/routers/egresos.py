@@ -31,7 +31,9 @@ def get_all_egresos(
         db = SessionLocal()
         credential = credentials.credentials
         owner_id = auth_handler.decode_token(credential)["user.id"]
-        result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit, owner_id)
+        result = EgresoRepository(db).get_egresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
         return JSONResponse(
             content=jsonable_encoder(result), status_code=status.HTTP_200_OK
         )
