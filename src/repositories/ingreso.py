@@ -8,9 +8,9 @@ class IngresoRepository:
         self.db = db
 
     def get_ingresos(
-        self, min_valor: float, max_valor: float, offset: int, limit: int
+        self, min_valor: float, max_valor: float, offset: int, limit: int, id: int
     ) -> List[IngresoSchema]:
-        query = self.db.query(Ingreso)
+        query = self.db.query(Ingreso).filter(Ingreso.owner_id == id)
         if min_valor is not None:
             query = query.filter(Ingreso.valor >= min_valor)
         if max_valor is not None:
