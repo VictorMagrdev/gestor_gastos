@@ -1,11 +1,12 @@
 from pydantic import BaseModel, Field, validator
+from datetime import date
 
 ingresos_categorias = ["Pago de nomina", "Pago contrato", "Pago arriendo", "Mesada"]
 
 
 class Ingreso(BaseModel):
-    id: int | None = Field(default=None, primary_key=True)
-    fecha: str | None = Field(default=None, title="Entry transaction date")
+    id: int = Field(default=None, primary_key=True)
+    fecha: str = Field(default=None, title="Entry transaction date")
     descripcion: str = Field(
         min_length=4, max_length=64, title="entry transaction description"
     )
@@ -36,7 +37,9 @@ class Ingreso(BaseModel):
             raise ValueError("Categoria incorrecta para los ingresos")
         return categoria
 
+
 class IngresoCreate(BaseModel):
+    fecha: date = Field(default=None, title="Entry transaction date")
     descripcion: str = Field(
         min_length=4, max_length=64, title="entry transaction description"
     )

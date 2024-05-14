@@ -6,7 +6,7 @@ from src.auth.has_access import security
 from fastapi.responses import JSONResponse
 from typing import List
 from src.config.database import SessionLocal
-from src.schemas.egreso import Egreso
+from src.schemas.ingreso import Egreso, EgresoCreate
 from src.repositories.egreso import EgresoRepository
 from fastapi.encoders import jsonable_encoder
 from src.auth import auth_handler
@@ -31,7 +31,9 @@ def get_all_egresos(
         db = SessionLocal()
         credential = credentials.credentials
         owner_id = auth_handler.decode_token(credential)["user.id"]
-        result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit, owner_id)
+        result = EgresoRepository(db).get_egresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
         return JSONResponse(
             content=jsonable_encoder(result), status_code=status.HTTP_200_OK
         )
@@ -75,11 +77,13 @@ def get_egreso(
 )
 def create_egreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    egreso: Egreso = Body(),
+    egreso: EgresoCreate = Body(),
 ) -> dict:
     if auth_handler.verify_jwt(credentials):
         db = SessionLocal()
-        new_egreso = EgresoRepository(db).create_egreso(egreso)
+        credential = credentials.credentials
+        owner_id = auth_handler.decode_token(credential)["user.id"]
+        new_egreso = EgresoRepository(db).create_egreso(egreso, owner_id)
         return JSONResponse(
             content={
                 "message": "The egreso was successfully created",

@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, validator
+from datetime import date
 
 egreso_categorias = ["alimentacion", "transporte", "ocio", "libros"]
 
@@ -23,3 +24,16 @@ class Egreso(BaseModel):
         if categoria not in egreso_categorias:
             raise ValueError("Categoria incorrecta para los egresos")
         return categoria
+
+
+class EgresoCreate(BaseModel):
+    fecha: date = Field(default=None, title="Entry transaction date")
+    descripcion: str = Field(
+        min_length=4, max_length=64, title="entry transaction description"
+    )
+    valor: float = Field(
+        default="1000", le=5000000, lg=100, title="Price of entry transaction"
+    )
+    categoria: str = Field(
+        min_length=4, max_length=128, title="category of entry transaction"
+    )

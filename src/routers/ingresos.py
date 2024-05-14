@@ -2,8 +2,7 @@ from fastapi import APIRouter, Body, status, Query, Path
 from fastapi.responses import JSONResponse
 from typing import List
 from src.config.database import SessionLocal
-from src.schemas.ingreso import IngresoCreate as IngresoCreateSchema
-from src.schemas.ingreso import Ingreso
+from src.schemas.ingreso import Ingreso, IngresoCreate
 from src.repositories.ingreso import IngresoRepository
 from fastapi.encoders import jsonable_encoder
 from src.auth import auth_handler
@@ -32,7 +31,9 @@ def get_all_ingresos(
         db = SessionLocal()
         credential = credentials.credentials
         owner_id = auth_handler.decode_token(credential)["user.id"]
-        result = IngresoRepository(db).get_ingresos(min_valor, max_valor, offset, limit, owner_id)
+        result = IngresoRepository(db).get_ingresos(
+            min_valor, max_valor, offset, limit, owner_id
+        )
         return JSONResponse(
             content=jsonable_encoder(result), status_code=status.HTTP_200_OK
         )
@@ -79,7 +80,7 @@ def get_ingreso(
 )
 def create_ingreso(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
-    ingreso: IngresoCreateSchema = Body(),
+    ingreso: IngresoCreate = Body(),
 ) -> dict:
     if auth_handler.verify_jwt(credentials):
         db = SessionLocal()

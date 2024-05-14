@@ -25,8 +25,9 @@ class EgresoRepository:
         element = self.db.query(Egreso).filter(Egreso.id == id).first()
         return element
 
-    def create_egreso(self, egreso: EgresoSchema) -> dict:
+    def create_egreso(self, egreso: EgresoSchema, id: int) -> dict:
         new_egreso = Egreso(**egreso.model_dump())
+        new_egreso.owner_id = id
         self.db.add(new_egreso)
         self.db.commit()
         self.db.refresh(new_egreso)
