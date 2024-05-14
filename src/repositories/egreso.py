@@ -8,9 +8,9 @@ class EgresoRepository:
         self.db = db
 
     def get_egresos(
-        self, min_valor: float, max_valor: float, offset: int, limit: int
+        self, min_valor: float, max_valor: float, offset: int, limit: int, id: int
     ) -> List[EgresoSchema]:
-        query = self.db.query(Egreso)
+        query = self.db.query(Egreso).filter(Egreso.owner_id == id)
         if min_valor is not None:
             query = query.filter(Egreso.valor >= min_valor)
         if max_valor is not None:

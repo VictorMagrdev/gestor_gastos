@@ -29,7 +29,9 @@ def get_all_egresos(
 ) -> List[Egreso]:
     if auth_handler.verify_jwt(credentials):
         db = SessionLocal()
-        result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit)
+        credential = credentials.credentials
+        owner_id = auth_handler.decode_token(credential)["user.id"]
+        result = EgresoRepository(db).get_egresos(min_valor, max_valor, offset, limit, owner_id)
         return JSONResponse(
             content=jsonable_encoder(result), status_code=status.HTTP_200_OK
         )
